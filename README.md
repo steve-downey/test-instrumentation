@@ -1,6 +1,6 @@
 # CMake Instrumentation Experimental Tests
 
-This project is intended for testing the experimental CMake instrumentation feature on: [my branch](https://gitlab.kitware.com/martin.duffy/cmake/-/commits/instrumentation).
+This project is intended for testing the experimental CMake instrumentation feature on: [my branch](https://gitlab.kitware.com/martin.duffy/cmake/-/commits/instrumentation)/[merge request](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9791)
 
 ## Instructions
 
