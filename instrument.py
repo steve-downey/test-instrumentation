@@ -7,10 +7,10 @@ outputDir = os.path.join(
     "output"
 )
 snippetDir = os.path.join(outputDir, "snippets")
-if not os.path.exists(outputDir):
-    os.makedirs(outputDir)
-if not os.path.exists(snippetDir):
-    os.makedirs(snippetDir)
+indexDir = os.path.join(outputDir, "indexes")
+for d in [outputDir, snippetDir, indexDir]:
+    if not os.path.exists(d):
+        os.makedirs(d)
 dataDir = os.path.dirname(index)
 
 with open(index) as f:
@@ -21,5 +21,9 @@ for snippet in data["snippets"]:
         os.path.join(dataDir, snippet),
         os.path.join(snippetDir, snippet)
     )
+shutil.copyfile(
+    index,
+    os.path.join(indexDir, os.path.basename(index))
+)
 
 main(index, os.path.join(outputDir, "trace.json"))
