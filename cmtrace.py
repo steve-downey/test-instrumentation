@@ -55,8 +55,8 @@ def read_targets(index, show_all):
     last_end_seen = 0
     show_all = True
     for x in snippets:
-        start, end, name = x["timing"]["start"], x["timing"]["end"], x["commandInfo"]["command"]
-        cmdhash = str(hash(x["name"]))
+        start, end, name = x["timeStart"], x["timeStart"]+x["duration"], x["command"]
+        cmdhash = str(hash(x["command"]))
         if not show_all and int(end) < last_end_seen:
             # An earlier time stamp means that this step is the first in a new
             # build, possibly an incremental build. Throw away the previous data
