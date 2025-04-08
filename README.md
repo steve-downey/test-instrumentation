@@ -1,32 +1,21 @@
-# CMake Instrumentation Experimental Tests
+# CMake Instrumentation Demo
 
-This project is intended for testing the experimental CMake instrumentation feature on: [my branch](https://gitlab.kitware.com/martin.duffy/cmake/-/commits/instrumentation)/[merge request](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9791)
+This project is intended for testing the experimental CMake instrumentation feature available in CMake 4.0.
 
 ## Instructions
 
-Create a `.json` file in either `~/.config/cmake/timing/v1/query/` or `<CMAKE_BINARY_DIR>/.cmake/timing/v1/query` with the following contents:
+To make the most of this example, you should read the [Instrumentation documentation](https://cmake.org/cmake/help/git-stage/manual/cmake-instrumentation.7.html).
 
-```json
-{
-    "version": 1,
-    "callbacks": ["<PATH_TO_PYTHON_EXE> <PATH_TO_THIS_REPO>/instrument.py"]
-}
-```
+The `example/` subdirectory includes a sample CMake project that enables CMake instrumentation and includes some simple custom commands and compiles to generate sample output.
 
-You can also add the following key to collect system information as part of the instrumentation:
+The provided `instrument.py` callback copies instrumentation data into `<CMAKE_BINARY_DIR>/instrumentation/` and generates a trace file to visualize the timing information.
 
-```
-    "queries": ["staticSystemInfo", "dynamicSystemInfo"]
-```
+In order to use the sample `instrument.py` callback provided in another CMake project, copy the `cmake_instrumentation` call
+in `example/CMakeLists.txt` into the project's CMake code. You will also need to set `CMAKE_EXPERIMENTAL_INSTRUMENTATION`, update the path to `instrument.py`, and ensure
+`Python_EXECUTABLE` is defined.
 
-Configure/Build your project using a version of CMake with the instrumentation changes built, then run `<YOUR_CMAKE_BUILD>/cmake -E collect_timing <YOUR_PROJECT_BINARY_DIR>` and see the output generated in the `output` directory.
-
-Optionally add the following key to run data indexing automatically at certain intervals instead of running `cmake -E collect_timing` manually:
-
-```
-    "hooks": ["preConfigure", "postGenerate", "preCMakeBuild", "postCMakeBuild", "postInstall", "postTest"]
-```
+## Viewing Trace Files
 
 This uses a modified version of the [ninja tracing script](https://github.com/nico/ninjatracing) to generate an output compatible with chrome's about:tracing format. 
 
-Open about:tracing in chrome, or use https://www.speedscope.app/ or https://ui.perfetto.dev/ and load the generated `output/trace.json` file.
+Open about:tracing in chrome, or use https://ui.perfetto.dev/ and load the generated `trace.json` files.

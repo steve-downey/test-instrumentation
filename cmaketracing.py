@@ -1,4 +1,4 @@
-#!/usr/bin python3.8
+#!/usr/bin/env python3
 # Copyright 2018 Nico Weber
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Converts one (or several) .ninja_log files into chrome's about:tracing format.
+"""Converts one (or several) CMake instrumentation index file
+   into chrome's about:tracing format.
 
 If clang -ftime-trace .json files are found adjacent to generated files they
 are embedded.
 
 Usage:
-    ninja -C $BUILDDIR
-    ninjatracing $BUILDDIR/.ninja_log > trace.json
+    python cmaketracing.py {index_file} > trace.json
 """
 
 from __future__ import print_function
@@ -45,22 +45,25 @@ def read_targets(index, show_all):
     time"""
     snippets = []
     with open(index, 'r') as f:
-        snippet_files = json.load(f)["snippets"];
+        snippet_files = json.load(f)["snippets"]
     for file in snippet_files:
         with open(os.path.join(os.path.dirname(index), file)) as f:
             snippets.append(json.load(f))
-            snippets[-1]["name" ] = file
+            snippets[-1]["name"] = file
 
     targets = {}
     last_end_seen = 0
     show_all = True
     for x in snippets:
-        start, end, name = x["timeStart"], x["timeStart"]+x["duration"], x["command"]
-        cmdhash = str(hash(x["command"]))
+        start, end = x["timeStart"], x["timeStart"]+x["duration"]
+        name = x["testName"] if "testName" in x else x["role"]
+        if "outputs" in x and len(x["outputs"]) > 0:
+            name = os.path.basename(x["outputs"][0])
+        cmdhash = str(hash(x["command"] + str(x["timeStart"])))
         if not show_all and int(end) < last_end_seen:
             # An earlier time stamp means that this step is the first in a new
-            # build, possibly an incremental build. Throw away the previous data
-            # so that this new build will be displayed independently.
+            # build, possibly an incremental build. Throw away the previous
+            # data so that this new build will be displayed independently.
             targets = {}
         last_end_seen = int(end)
         targets.setdefault(cmdhash, Target(start, end)).targets.append(name)
@@ -70,7 +73,7 @@ def read_targets(index, show_all):
 class Threads:
     """Tries to reconstruct the parallelism from a .ninja_log"""
     def __init__(self):
-        self.workers = []  # Maps thread id to time that thread is occupied for.
+        self.workers = []  # Maps thread id to time that thread is occupied for
 
     def alloc(self, target):
         """Places target in an available thread, or adds a new thread."""
@@ -156,7 +159,7 @@ def log_to_dicts(log, pid, options):
                 yield time_trace
 
 
-def main(argv, outfile = None):
+def main(argv, outfile=None):
     usage = __doc__
     parser = optparse.OptionParser(usage)
     parser.add_option('-a', '--showall', action='store_true', dest='showall',
@@ -175,21 +178,9 @@ def main(argv, outfile = None):
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
-      import glob
-      import os
-
-      search_dir = os.path.join(os.getcwd(), ".cmake/timing/v1/")
-      files = list(filter(os.path.isfile, glob.glob(search_dir + "*")))
-      files.sort(key=lambda x: os.path.getmtime(x))
-      for f in files:
-          if f.startswith('index'):
-              args.append(f)
-              break
-
-    if len(args) == 0:
-      print('Must specify at least one .ninja_log file')
-      parser.print_help()
-      return 1
+        print("Must specify at least one index file")
+        parser.print_help()
+        return 1
 
     entries = []
     for pid, log_file in enumerate(args):

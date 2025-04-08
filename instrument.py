@@ -1,29 +1,33 @@
-import json, shutil, os, sys
-from cmtrace import main
-index = sys.argv[1]
+from cmaketracing import main
+import json
+import os
+import shutil
+import sys
 
-outputDir = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "output"
-)
-snippetDir = os.path.join(outputDir, "snippets")
-indexDir = os.path.join(outputDir, "indexes")
-for d in [outputDir, snippetDir, indexDir]:
-    if not os.path.exists(d):
-        os.makedirs(d)
-dataDir = os.path.dirname(index)
+if __name__ == "__main__":
+    index = sys.argv[1]
 
-with open(index) as f:
-    data = json.load(f)
+    with open(index) as f:
+        data = json.load(f)
+        buildDir = data["buildDir"]
+        dataDir = data["dataDir"]
 
-for snippet in data["snippets"]:
+    indexName = os.path.basename(index).split(".")[0]
+
+    outputDir = os.path.join(buildDir, "instrumentation")
+    indexDir = os.path.join(outputDir, indexName)
+    for d in [outputDir, indexDir]:
+        if not os.path.exists(d):
+            os.makedirs(d)
+
+    for snippet in data["snippets"]:
+        shutil.copyfile(
+            os.path.join(dataDir, snippet),
+            os.path.join(indexDir, snippet)
+        )
     shutil.copyfile(
-        os.path.join(dataDir, snippet),
-        os.path.join(snippetDir, snippet)
+        index,
+        os.path.join(indexDir, os.path.basename(index))
     )
-shutil.copyfile(
-    index,
-    os.path.join(indexDir, os.path.basename(index))
-)
 
-main(index, os.path.join(outputDir, "trace.json"))
+    main(index, os.path.join(indexDir, "trace.json"))
