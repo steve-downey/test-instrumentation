@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 4.0)
 project(InstrumentationDemo LANGUAGES CXX)
 enable_testing()
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_STANDARD 17)
 
 # Allow parallel install
 set_property(GLOBAL PROPERTY INSTALL_PARALLEL ON)
@@ -49,7 +50,7 @@ add_executable(thousand thousand.cxx)
 add_executable(million million.cxx)
 foreach(target thousand million)
   target_compile_options(${target} PRIVATE
-    -fconstexpr-loop-limit=1000000
+    $<$<CXX_COMPILER_ID:GNU>:-fconstexpr-loop-limit=1000000>
   )
   add_dependencies(${target}
     subdir1_wait
