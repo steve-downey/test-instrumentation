@@ -40,6 +40,15 @@ class Target:
         self.targets = []
 
 
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
+
 def read_targets(index, show_all):
     """Reads all targets from .ninja_log file |log_file|, sorted by start
     time"""
@@ -47,7 +56,7 @@ def read_targets(index, show_all):
     with open(index, 'r') as f:
         snippet_files = json.load(f)["snippets"]
     for file in snippet_files:
-        with open(os.path.join(os.path.dirname(index), file)) as f:
+        with open(os.path.join(os.path.dirname(os.path.dirname(index)), file)) as f:
             snippets.append(json.load(f))
             snippets[-1]["name"] = file
 

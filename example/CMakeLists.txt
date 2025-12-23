@@ -13,16 +13,17 @@ set_property(GLOBAL PROPERTY INSTALL_PARALLEL ON)
 
 # Enable experimental feature!!
 set(CMAKE_EXPERIMENTAL_INSTRUMENTATION
-    a37d1069-1972-4901-b9c9-f194aaf2b6e0)
+  ec7aa2dc-b87f-45a3-8022-fe01c5f59984)
 
 # Instrumentation query
-find_package(Python COMPONENTS Interpreter)
+# find_package(Python COMPONENTS Interpreter)
 cmake_instrumentation(
   API_VERSION 1
   DATA_VERSION 1
-  QUERIES dynamicSystemInformation # staticSystemInformation
-  HOOKS postCMakeBuild postInstall postTest
-  CALLBACK ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/../instrument.py
+  HOOKS postGenerate preBuild postBuild preCMakeBuild postCMakeBuild postCMakeInstall postCTest
+  OPTIONS trace
+#  CALLBACK ${Python_EXECUTABLE} ${CMAKE_SOURCE_DIR}/../instrument.py
+  CALLBACK ${CMAKE_SOURCE_DIR}/../instrument.sh
 )
 
 macro(add_subdirectory_build n)
