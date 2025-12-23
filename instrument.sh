@@ -52,42 +52,42 @@ _debug_print() {
 
 _check_file_exists() {
     local file="$1"
-    if [[ ! -f "$file" ]]; then
-        echo "Error: File not found: $file" >&2
+    if [[ ! -f "${file}" ]]; then
+        echo "Error: File not found: ${file}" >&2
         exit 1  # Exit the entire script with a non-zero status
     fi
 }
 
 _process_index() {
     indexFile=${1:-}
-    _check_file_exists "$indexFile"
-    _debug_print "$(cat "$indexFile")"
+    _check_file_exists "${indexFile}"
+    _debug_print "$(cat "${indexFile}")"
 
     local buildDir
     buildDir=$(jq -r '.buildDir' "${1:-}")
-    _debug_print "$(printf "buildDir is |%q|" "$buildDir")"
+    _debug_print "$(printf "buildDir is |%q|" "${buildDir}")"
 
     local dataDir
     dataDir=$(jq -r '.dataDir' "${1:-}")
-    _debug_print "$(printf "dataDir is |%q|" "$dataDir")"
+    _debug_print "$(printf "dataDir is |%q|" "${dataDir}")"
 
     local hook
     hook=$(jq -r '.hook' "${1:-}")
-    _debug_print "$(printf "hook is |%q|" "$hook")"
+    _debug_print "$(printf "hook is |%q|" "${hook}")"
 
     local trace
     trace=$(jq -r '.trace' "${1:-}")
-    _debug_print "$(printf "trace is |%q|" "$trace")"
+    _debug_print "$(printf "trace is |%q|" "${trace}")"
 
     local outputDir
-    outputDir="$buildDir/.trace"
-    _debug_print "$(printf "Copy trace to |%q|" "$outputDir")"
-    mkdir -p "$outputDir"
+    outputDir="${buildDir}/.trace"
+    _debug_print "$(printf "Copy trace to |%q|" "${outputDir}")"
+    mkdir -p "${outputDir}"
 
     local traceDestFile
-    traceDestFile="$outputDir/$hook-$(basename "$trace")"
-    _debug_print "$(printf "traceDestFile: |%q|" "$traceDestFile")"
-    cp "$dataDir/$trace" "$outputDir/$hook-$(basename "$trace")"
+    traceDestFile="${outputDir}/${hook}-$(basename "${trace}")"
+    _debug_print "$(printf "traceDestFile: |%q|" "${traceDestFile}")"
+    cp "${dataDir}/${trace}" "${outputDir}/${hook}-$(basename "${trace}")"
 }
 
 ###############################################################################
